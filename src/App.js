@@ -32,16 +32,25 @@ class App extends Component {
         }
       }))
 
-    const result = await this.artistLoop(accessToken) 
-    console.log(result)
+    let artistRecurse = await fetch(  // David Bowie
+      'https://api.spotify.com/v1/artists/0oSGxfWSnnOXhD2fKuz2Gy', {
+        headers: { 'Authorization': 'Bearer ' + accessToken }
+      }).then(response => response.json())
+
+    let artistDest = "0UKfenbZb15sqhfPC6zbt3"  // Divo
+    let path = artistRecurse.name + " "
+    let count = 0
+
+    this.recurseSearch(artistRecurse, artistDest, path, accessToken, count)
 
   }
 
   async artistLoop(accessToken) {
-    var artistRecurse = "43ZHCT0cAZBISjO8DG9PnE"
+    var artistRecurse = "0oSGxfWSnnOXhD2fKuz2Gy" // David Bowie
     const artists = []
 
-    for (var i = 1; i < 10; i ++) {
+
+    for (var i = 0; i < 20; i ++) {
       let fetchString = 'https://api.spotify.com/v1/artists/' +
         artistRecurse +
         '/related-artists'
@@ -56,6 +65,33 @@ class App extends Component {
     return artists
   }
 
+  async recurseSearch(artistRecurse, artistDest, path, accessToken, count) {
+    let fetchString = 'https://api.spotify.com/v1/artists/' +
+      artistRecurse.id +
+      '/related-artists'
+    const response = await fetch(fetchString, {
+      headers: { 'Authorization': 'Bearer ' + accessToken }
+    })
+    const data = await response.json()
+
+    let relatedArtists = data.artists
+
+    for (let i = 0; i < relatedArtists.length; i++) {
+      let artist = relatedArtists[i]
+      if (relatedArtists[i].id === artistDest) {
+        console.log('success')
+        console.log(path)
+        return
+      } else if (count === 5) {
+        return
+      } else {
+        let newpath = path + relatedArtists[i].name + ' '
+        this.recurseSearch(relatedArtists[i], artistDest, newpath, accessToken, count++)
+      }
+    }
+  }
+
+  
   render() {
     return (
       <div className="App">

@@ -10,6 +10,7 @@ class App extends Component {
 
     this.array = []
     this.found = false
+    this.string = ""
 
     this.state = {
       user: {
@@ -33,18 +34,20 @@ class App extends Component {
         }
       }))
 
-    let artistRecurse = await fetch(  // David Bowie
-      'https://api.spotify.com/v1/artists/0oSGxfWSnnOXhD2fKuz2Gy', {
-        headers: { 'Authorization': 'Bearer ' + accessToken }
-      }).then(response => response.json())
+    if (this.state.pathString) {
 
-    let artistDest = "1JHzh1ETQTMoFb2CgncnTL"  // Talking Heads
-    let path = artistRecurse.name + " "
-    var artistArray = []
+    } else {
+      let artistRecurse = await fetch(  // David Bowie
+        'https://api.spotify.com/v1/artists/0oSGxfWSnnOXhD2fKuz2Gy', {
+          headers: { 'Authorization': 'Bearer ' + accessToken }
+        }).then(response => response.json())
 
-    let result = await this.recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray)
-    console.log(result)
+      let artistDest = "1JHzh1ETQTMoFb2CgncnTL"  // Talking Heads
+      let path = artistRecurse.name + " "
+      var artistArray = []
 
+      await this.recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray)
+    }
   }
 
   async recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray) {
@@ -58,20 +61,23 @@ class App extends Component {
 
     let relatedArtists = data.artists
 
-    for (let i = 0; i < relatedArtists.length; i++) {
+    try {for (let i = 0; i < relatedArtists.length; i++) {
       if (this.found) return;
       if (artistArray.includes(relatedArtists[i].name)) {
       } else if (relatedArtists[i].id === artistDest) {
-        console.log(relatedArtists[i].name)
         this.found = true
         console.log(path)
-        return path
+        this.setState({
+          pathString: path
+        })
+        return
       } else {
         let newpath = path + relatedArtists[i].name + ' '
         artistArray.push(relatedArtists[i].name)
         this.recurseSearch(relatedArtists[i], artistDest, newpath, accessToken, artistArray)
       }
     }
+  } catch(err) {return}
   }
 
   
@@ -95,6 +101,11 @@ class App extends Component {
             <h1 className="App-title">{this.state.user.name} is logged in!</h1>
             <h1>They have {this.state.user.followers} followers!</h1>
           </header>
+        </div>
+        }
+        {this.state.pathString && 
+        <div>
+          <h1>{this.state.pathString}</h1>
         </div>
         }
       </div>

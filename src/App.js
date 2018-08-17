@@ -3,8 +3,13 @@ import logo from './logo.svg';
 import './App.css';
 
 class App extends Component {
+
+
   constructor() {
     super();
+
+    this.array = []
+
     this.state = {
       user: {
         name: "",
@@ -12,7 +17,7 @@ class App extends Component {
       }
     }
   }
-  componentDidMount() {
+  async componentDidMount() {
     let accessToken = new URLSearchParams(window.location.search).get('access_token')
     if (accessToken == null) {
       return;
@@ -26,35 +31,29 @@ class App extends Component {
           followers: data.followers.total
         }
       }))
-    this.searchArtist(accessToken)
+
+    const result = await this.artistLoop(accessToken) 
+    console.log(result)
+
   }
 
-  searchArtist(accessToken) {
-    var artistRecurse = {}
-    var artistNames = []
-    fetch('https://api.spotify.com/v1/artists/43ZHCT0cAZBISjO8DG9PnE/related-artists', {
-      headers: { 'Authorization': 'Bearer ' + accessToken }
-    }).then(response => response.json())
-      .then(data => {
-        artistRecurse = data.artists[0]
-        artistNames[0] = artistRecurse.name
-      }).then( data => {
-        let fetchString =
-          'https://api.spotify.com/v1/artists/' +
-          artistRecurse.id +
-          '/related-artists'
-        console.log(fetchString)
+  async artistLoop(accessToken) {
+    var artistRecurse = "43ZHCT0cAZBISjO8DG9PnE"
+    const artists = []
 
-        fetch(fetchString, {
-          headers: { 'Authorization': 'Bearer ' + accessToken }
-        }).then(response => response.json())
-          .then(data => {
-            artistRecurse = data.artists[0]
-            artistNames[1] = artistRecurse.name
-            console.log(artistNames)
-          })
+    for (var i = 1; i < 10; i ++) {
+      let fetchString = 'https://api.spotify.com/v1/artists/' +
+        artistRecurse +
+        '/related-artists'
+      const response = await fetch(fetchString, {
+        headers: { 'Authorization': 'Bearer ' + accessToken }
       })
+      const data = await response.json()
+      artistRecurse = data.artists[i].id
+      artists.push(data.artists[i])
 
+    }
+    return artists
   }
 
   render() {

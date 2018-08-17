@@ -43,7 +43,7 @@ class App extends Component {
         }).then(response => response.json())
 
       let artistDest = "1JHzh1ETQTMoFb2CgncnTL"  // Talking Heads
-      let path = artistRecurse.name + " "
+      let path = artistRecurse.name + ', '
       var artistArray = []
 
       await this.recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray)
@@ -66,13 +66,14 @@ class App extends Component {
       if (artistArray.includes(relatedArtists[i].name)) {
       } else if (relatedArtists[i].id === artistDest) {
         this.found = true
+        path = path + relatedArtists[i].name
         console.log(path)
         this.setState({
           pathString: path
         })
         return
       } else {
-        let newpath = path + relatedArtists[i].name + ' '
+        let newpath = path + relatedArtists[i].name + ', '
         artistArray.push(relatedArtists[i].name)
         this.recurseSearch(relatedArtists[i], artistDest, newpath, accessToken, artistArray)
       }

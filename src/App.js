@@ -9,6 +9,7 @@ class App extends Component {
     super();
 
     this.array = []
+    this.found = false
 
     this.state = {
       user: {
@@ -37,35 +38,16 @@ class App extends Component {
         headers: { 'Authorization': 'Bearer ' + accessToken }
       }).then(response => response.json())
 
-    let artistDest = "0UKfenbZb15sqhfPC6zbt3"  // Divo
+    let artistDest = "1JHzh1ETQTMoFb2CgncnTL"  // Talking Heads
     let path = artistRecurse.name + " "
-    let count = 0
+    var artistArray = []
 
-    this.recurseSearch(artistRecurse, artistDest, path, accessToken, count)
+    let result = await this.recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray)
+    console.log(result)
 
   }
 
-  async artistLoop(accessToken) {
-    var artistRecurse = "0oSGxfWSnnOXhD2fKuz2Gy" // David Bowie
-    const artists = []
-
-
-    for (var i = 0; i < 20; i ++) {
-      let fetchString = 'https://api.spotify.com/v1/artists/' +
-        artistRecurse +
-        '/related-artists'
-      const response = await fetch(fetchString, {
-        headers: { 'Authorization': 'Bearer ' + accessToken }
-      })
-      const data = await response.json()
-      artistRecurse = data.artists[i].id
-      artists.push(data.artists[i])
-
-    }
-    return artists
-  }
-
-  async recurseSearch(artistRecurse, artistDest, path, accessToken, count) {
+  async recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray) {
     let fetchString = 'https://api.spotify.com/v1/artists/' +
       artistRecurse.id +
       '/related-artists'
@@ -77,16 +59,17 @@ class App extends Component {
     let relatedArtists = data.artists
 
     for (let i = 0; i < relatedArtists.length; i++) {
-      let artist = relatedArtists[i]
-      if (relatedArtists[i].id === artistDest) {
-        console.log('success')
+      if (this.found) return;
+      if (artistArray.includes(relatedArtists[i].name)) {
+      } else if (relatedArtists[i].id === artistDest) {
+        console.log(relatedArtists[i].name)
+        this.found = true
         console.log(path)
-        return
-      } else if (count === 5) {
-        return
+        return path
       } else {
         let newpath = path + relatedArtists[i].name + ' '
-        this.recurseSearch(relatedArtists[i], artistDest, newpath, accessToken, count++)
+        artistArray.push(relatedArtists[i].name)
+        this.recurseSearch(relatedArtists[i], artistDest, newpath, accessToken, artistArray)
       }
     }
   }

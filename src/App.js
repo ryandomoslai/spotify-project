@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import ArtistNode from './artistStructure/artistNode';
+import ArtistTree from './artistStructure/artistTree';
 
 class App extends Component {
 
@@ -79,6 +81,10 @@ class App extends Component {
       }
     }
   } catch(err) {return}
+
+  let testTree = new ArtistTree(1)
+  console.log(testTree)
+
   }
 
   

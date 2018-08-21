@@ -2,6 +2,9 @@
  * A node tree, designed for drawing paths from artists in the Spotify API
  * Created by: Ryan Domoslai, for https://github.com/ryandomoslai/spotify-project
  */
+
+import ArtistNode from './artistNode';
+
 class ArtistTree {
 
     /**
@@ -11,9 +14,9 @@ class ArtistTree {
      * @param {*} rightTree Item initialized as root right subtree.
      */
     constructor(rootItem, leftTree, rightTree) {
-        rootNode = this.createNewNode(rootItem)
-        this.setLeftSubtree(leftTree)
-        this.setRightSubtree(rightTree)
+        this.rootNode = this.createNewNode(rootItem)
+        this.setRootLeftTree(leftTree)
+        this.setRootRightTree(rightTree)
     }
 
     /**
@@ -73,7 +76,7 @@ class ArtistTree {
         if (this.isEmpty()) {
             // Throw exception
         } else {
-            result = new ArtistTree(this.rootNode.leftNode(), null. null)
+            let result = new ArtistTree(this.rootNode.leftNode(), null, null)
             return result
         }
     }
@@ -85,7 +88,7 @@ class ArtistTree {
         if (this.isEmpty()) {
             // Throw exception
         } else {
-            result = new ArtistTree(this.rootNode.rightNode(), null, null)
+            let result = new ArtistTree(this.rootNode.rightNode(), null, null)
             return result
         }
     }
@@ -99,9 +102,9 @@ class ArtistTree {
             // Throw exception
         } else {
             if (newTree != null) {
-                this.rootNode.setLeftNode(newTree.rootNode())
+                this.rootNode.addNodeChild(newTree.rootNode())
             } else {
-                this.rootNode.setLeftNode(null)
+                this.rootNode.addNodeChild(null)
             }
         }
     }
@@ -110,15 +113,17 @@ class ArtistTree {
      * Sets the new right subtree of the root.
      * @param {*} newTree The tree to replace the current right tree.
      */
-    setRootSubTree(newTree) {
+    setRootRightTree(newTree) {
         if (this.isEmpty()) {
             // Throw exception
         } else {
             if (newTree != null) {
-                this.rootNode.setRightNode(newTree.rootNode())
+                this.rootNode.addNodeChild(newTree.rootNode())
             } else {
-                this.rootNode.setRightNode(null)
+                this.rootNode.addNodeChild(null)
             }
         }
     }
 }
+
+export default ArtistTree;

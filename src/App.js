@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import ArtistNode from './artistStructure/artistNode';
 import ArtistTree from './artistStructure/artistTree';
 
 class App extends Component {
@@ -46,13 +45,14 @@ class App extends Component {
 
       let artistDest = "1JHzh1ETQTMoFb2CgncnTL"  // Talking Heads
       let path = artistRecurse.name + ', '
-      var artistArray = []
+      let artistTree = new ArtistTree(artistRecurse.name)
+      console.log(artistTree)
 
-      await this.recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray)
+      await this.recurseSearch(artistRecurse, artistDest, path, accessToken, artistTree)
     }
   }
 
-  async recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray) {
+  async recurseSearch(artistRecurse, artistDest, path, accessToken, artistTree) {
     let fetchString = 'https://api.spotify.com/v1/artists/' +
       artistRecurse.id +
       '/related-artists'
@@ -65,26 +65,22 @@ class App extends Component {
 
     try {for (let i = 0; i < relatedArtists.length; i++) {
       if (this.found) return;
-      if (artistArray.includes(relatedArtists[i].name)) {
+      if (artistTree.getChildren().includes(relatedArtists[i].name)) {
       } else if (relatedArtists[i].id === artistDest) {
         this.found = true
-        path = path + relatedArtists[i].name
-        console.log(path)
+        artistTree.setChild(relatedArtists[i].name)
+        console.log(artistTree)
         this.setState({
-          pathString: path
+          pathString: toString(artistTree)
         })
         return
       } else {
-        let newpath = path + relatedArtists[i].name + ', '
-        artistArray.push(relatedArtists[i].name)
-        this.recurseSearch(relatedArtists[i], artistDest, newpath, accessToken, artistArray)
+        let newpath = ""
+        artistTree.setChild(relatedArtists[i].name)
+        this.recurseSearch(relatedArtists[i], artistDest, newpath, accessToken, artistTree)
       }
     }
   } catch(err) {return}
-
-  let testTree = new ArtistTree(1)
-  console.log(testTree)
-
   }
 
   

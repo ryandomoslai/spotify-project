@@ -13,10 +13,8 @@ class ArtistTree {
      * @param {*} leftTree Item initialized as root left subtree.
      * @param {*} rightTree Item initialized as root right subtree.
      */
-    constructor(rootItem, leftTree, rightTree) {
+    constructor(rootItem) {
         this.rootNode = this.createNewNode(rootItem)
-        this.setRootLeftTree(leftTree)
-        this.setRootRightTree(rightTree)
     }
 
     /**
@@ -66,63 +64,16 @@ class ArtistTree {
     setRootItem(item) {
         if (this.isEmpty()) {
             // Throw exception
-        } else { this.rootNode.setItem(item); }
+        } else { this.rootNode.setItem(item) }
     }
 
-    /**
-     * @returns The left subtree of the root.
-     */
-    rootLeftSubTree() {
-        if (this.isEmpty()) {
-            // Throw exception
-        } else {
-            let result = new ArtistTree(this.rootNode.leftNode(), null, null)
-            return result
-        }
+    setChild(item) {
+        let newChild = new ArtistNode(item)
+        this.rootNode.addNodeChild(newChild)
     }
 
-    /**
-     * @returns The right subtree of the root.
-     */
-    rootRightSubTree() {
-        if (this.isEmpty()) {
-            // Throw exception
-        } else {
-            let result = new ArtistTree(this.rootNode.rightNode(), null, null)
-            return result
-        }
-    }
-
-    /**
-     * Sets the new left subtree of the root.
-     * @param {} newTree The tree to replace the current left tree.
-     */
-    setRootLeftTree(newTree) {
-        if (this.isEmpty()) {
-            // Throw exception
-        } else {
-            if (newTree != null) {
-                this.rootNode.addNodeChild(newTree.rootNode())
-            } else {
-                this.rootNode.addNodeChild(null)
-            }
-        }
-    }
-
-    /**
-     * Sets the new right subtree of the root.
-     * @param {*} newTree The tree to replace the current right tree.
-     */
-    setRootRightTree(newTree) {
-        if (this.isEmpty()) {
-            // Throw exception
-        } else {
-            if (newTree != null) {
-                this.rootNode.addNodeChild(newTree.rootNode())
-            } else {
-                this.rootNode.addNodeChild(null)
-            }
-        }
+    getChildren() {
+        return this.rootNode.getChildren()
     }
 }
 

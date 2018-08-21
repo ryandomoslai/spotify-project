@@ -61,6 +61,11 @@
             this.nodes[index] = newNode
         }
     }
+
+    getChildren() {
+        return this.nodes;
+    }
+
  }
 
  export default ArtistNode

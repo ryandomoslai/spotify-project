@@ -13,11 +13,14 @@ class App extends Component {
     this.found = false
     this.string = ""
 
+    this.startSearch = this.startSearch.bind(this)
+
     this.state = {
       user: {
         name: "",
         followers: 0,
-      }
+      },
+      selectedQuery: {}
     }
   }
   async componentDidMount() {
@@ -50,6 +53,10 @@ class App extends Component {
 
       let result = await this.recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray)
     }
+  }
+
+  startSearch(query) {
+    this.setState({ selectedQuery: query})
   }
 
   async recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray) {
@@ -112,7 +119,10 @@ class App extends Component {
           <h1>{this.state.path.item.name}</h1>
         </div>
         }
-        <SearchBar />
+        <SearchBar selectArtist={this.startSearch} />
+        <div>
+          <h1>{this.state.selectedQuery.name}</h1>
+        </div>
       </div>
     );
   }

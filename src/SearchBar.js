@@ -5,10 +5,13 @@ class SearchBar extends Component {
     constructor() {
         super()
         this.accessToken = ""
+        
+        this.selectArtist = this.selectArtist.bind(this)
 
         this.state = {
             query: {
-                list: []
+                list: [],
+                selected: {}
             }
         }
     }
@@ -31,10 +34,14 @@ class SearchBar extends Component {
         })
     }
 
+    selectArtist(query) {
+        this.props.selectArtist(query)
+    }
+
     render() {
 
         const queryList = this.state.query.list.map((query) =>
-            <li>{query.name}</li>
+            <li onClick={() => {this.selectArtist(query)}}>{query.name}</li>
         )
         return (
             <div>

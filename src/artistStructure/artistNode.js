@@ -9,9 +9,9 @@
      * Creates a new ArtistNode and sets the item, and initializes it's empty children.
      * @param {*} item the item to initialize the node with.
      */
-    constructor(item) {
+    constructor(parent, item) {
+        this.parent = parent
         this.item = item
-        this.nodes = []
     }
 
     /**

@@ -54,7 +54,7 @@ class ArtistTree {
     rootItem() {
         if (this.isEmpty()) {
             // Throw exception
-        } else { return this.rootNode.item() }
+        } else { return this.rootNode.item }
     }
 
     /**
@@ -70,6 +70,10 @@ class ArtistTree {
     setChild(item) {
         let newChild = new ArtistNode(item)
         this.rootNode.addNodeChild(newChild)
+    }
+
+    getChild(index) {
+        return this.rootNode.nodes[index]
     }
 
     getChildren() {

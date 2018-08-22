@@ -46,14 +46,13 @@ class App extends Component {
 
       let artistDest = "1dfeR4HaWDbWqFHLkxsg1d"  // Queen
       let path = new ArtistNode(null, artistRecurse)
-      let artistArray = []
 
-      let result = await this.recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray)
+      let result = await this.recurseSearch(artistRecurse, artistDest, path, accessToken)
       console.log(result)
     }
   }
 
-  async recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray) {
+  async recurseSearch(artistRecurse, artistDest, path, accessToken) {
     let fetchString = 'https://api.spotify.com/v1/artists/' +
       artistRecurse.id +
       '/related-artists'
@@ -67,8 +66,7 @@ class App extends Component {
     try {
       for (let i = 0; i < relatedArtists.length; i++) {
         if (this.found) return;
-        if (artistArray.includes(relatedArtists[i].name)) {
-        } else if (relatedArtists[i].id === artistDest) {
+        if (relatedArtists[i].id === artistDest) {
           this.found = true
           let newNode = new ArtistNode(path, relatedArtists[i])
           path = newNode
@@ -78,8 +76,7 @@ class App extends Component {
           return path
         } else {
           let newNode = new ArtistNode(path, relatedArtists[i])
-          artistArray.push(relatedArtists[i].name)
-          this.recurseSearch(relatedArtists[i], artistDest, newNode, accessToken, artistArray)
+          this.recurseSearch(relatedArtists[i], artistDest, newNode, accessToken)
         }
       }
     } catch (err) { return }

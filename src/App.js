@@ -53,33 +53,6 @@ class App extends Component {
     }
   }
 
-  // async recurseSearch(artistRoot, artistDest, accessToken, stack) {
-  //   if (this.found) return
-  //   let fetchString = 'https://api.spotify.com/v1/artists/' +
-  //     artistRoot.item.id +
-  //     '/related-artists'
-  //   const response = await fetch(fetchString, {
-  //     headers: { 'Authorization': 'Bearer ' + accessToken }
-  //   })
-  //   const data = await response.json()
-  //   let relatedArtists = data.artists
-
-  //   if (artistRoot.item.id === artistDest) {
-  //     console.log("found it")
-  //     this.found = true
-  //     console.log(artistRoot)
-  //     return artistRoot
-  //   } else {
-  //     for (let i = 0; i < relatedArtists.length; i++) {
-  //       if (artistRoot.parent === relatedArtists[i]) {
-  //         return
-  //       }
-  //       let newNode = new ArtistNode(artistRoot, relatedArtists[i])
-  //       return this.recurseSearch(newNode, artistDest, accessToken)
-  //     }
-  //   }
-  // }
-
   async recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray) {
     let fetchString = 'https://api.spotify.com/v1/artists/' +
       artistRecurse.id +
@@ -99,11 +72,10 @@ class App extends Component {
           this.found = true
           let newNode = new ArtistNode(path, relatedArtists[i])
           path = newNode
-          console.log(path)
           this.setState({
-            pathString: toString(path)
+            path: path
           })
-          return
+          return path
         } else {
           let newNode = new ArtistNode(path, relatedArtists[i])
           artistArray.push(relatedArtists[i].name)
@@ -112,7 +84,6 @@ class App extends Component {
       }
     } catch (err) { return }
   }
-
   
   render() {
     return (
@@ -136,9 +107,9 @@ class App extends Component {
           </header>
         </div>
         }
-        {this.state.pathString && 
+        {this.state.path && 
         <div>
-          <h1>{this.state.pathString}</h1>
+          <h1>{this.state.path.item.name}</h1>
         </div>
         }
       </div>

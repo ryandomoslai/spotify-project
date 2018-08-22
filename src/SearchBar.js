@@ -39,7 +39,6 @@ class SearchBar extends Component {
     }
 
     render() {
-
         const queryList = this.state.query.list.map((query) =>
             <li onClick={() => {this.selectArtist(query)}}>{query.name}</li>
         )

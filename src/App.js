@@ -12,6 +12,7 @@ class App extends Component {
     this.array = []
     this.found = false
     this.string = ""
+    this.accessToken = ""
 
     this.startSearch = this.startSearch.bind(this)
 
@@ -23,13 +24,14 @@ class App extends Component {
       selectedQuery: {}
     }
   }
+
   async componentDidMount() {
-    let accessToken = new URLSearchParams(window.location.search).get('access_token')
-    if (accessToken == null) {
+    this.accessToken = new URLSearchParams(window.location.search).get('access_token')
+    if (this.accessToken == null) {
       return;
     }
     fetch('https://api.spotify.com/v1/me', {
-      headers: { 'Authorization': 'Bearer ' + accessToken }
+      headers: { 'Authorization': 'Bearer ' + this.accessToken }
     }).then(response => response.json())
       .then(data => this.setState({
         user: {
@@ -37,26 +39,20 @@ class App extends Component {
           followers: data.followers.total
         }
       }))
-
-    if (this.state.pathString) {
-
-    } else {
-      // The recursive section
-      let artistRecurse = await fetch(  // Bowie
-        'https://api.spotify.com/v1/artists/0oSGxfWSnnOXhD2fKuz2Gy', {
-          headers: { 'Authorization': 'Bearer ' + accessToken }
-        }).then(response => response.json())
-
-      let artistDest = "2x9SpqnPi8rlE9pjHBwmSC"  // Talking heds
-      let path = new ArtistNode(null, artistRecurse)
-      let artistArray = []
-
-      let result = await this.recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray)
-    }
   }
 
-  startSearch(query) {
-    this.setState({ selectedQuery: query})
+  async startSearch(query) {
+    await this.setState({ selectedQuery: query})
+
+    let artistRecurse = await fetch(  // Bowie
+      'https://api.spotify.com/v1/artists/0oSGxfWSnnOXhD2fKuz2Gy', {
+        headers: { 'Authorization': 'Bearer ' + this.accessToken }
+      }).then(response => response.json())
+
+    let artistDest = "2x9SpqnPi8rlE9pjHBwmSC"  // Talking heds  
+    let path = new ArtistNode(null, artistRecurse)
+    let artistArray = []
+    let result = await this.recurseSearch(artistRecurse, artistDest, path, this.accessToken, artistArray)
   }
 
   async recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray) {

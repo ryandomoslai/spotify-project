@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import ArtistNode from './artistStructure/artistNode';
+import SearchBar from './SearchBar';
 
 class App extends Component {
 
-
   constructor() {
-    super();
+    super()
 
     this.array = []
     this.found = false
@@ -39,20 +39,20 @@ class App extends Component {
 
     } else {
       // The recursive section
-      let artistRecurse = await fetch(  // David Bowie
+      let artistRecurse = await fetch(  // Bowie
         'https://api.spotify.com/v1/artists/0oSGxfWSnnOXhD2fKuz2Gy', {
           headers: { 'Authorization': 'Bearer ' + accessToken }
         }).then(response => response.json())
 
-      let artistDest = "1dfeR4HaWDbWqFHLkxsg1d"  // Queen
+      let artistDest = "2x9SpqnPi8rlE9pjHBwmSC"  // Talking heds
       let path = new ArtistNode(null, artistRecurse)
+      let artistArray = []
 
-      let result = await this.recurseSearch(artistRecurse, artistDest, path, accessToken)
-      console.log(result)
+      let result = await this.recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray)
     }
   }
 
-  async recurseSearch(artistRecurse, artistDest, path, accessToken) {
+  async recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray) {
     let fetchString = 'https://api.spotify.com/v1/artists/' +
       artistRecurse.id +
       '/related-artists'
@@ -66,17 +66,20 @@ class App extends Component {
     try {
       for (let i = 0; i < relatedArtists.length; i++) {
         if (this.found) return;
-        if (relatedArtists[i].id === artistDest) {
+        if (artistArray.includes(relatedArtists[i].name)) {
+        } else if (relatedArtists[i].id === artistDest) {
           this.found = true
           let newNode = new ArtistNode(path, relatedArtists[i])
           path = newNode
+          console.log(path)
           this.setState({
             path: path
           })
           return path
         } else {
           let newNode = new ArtistNode(path, relatedArtists[i])
-          this.recurseSearch(relatedArtists[i], artistDest, newNode, accessToken)
+          artistArray.push(relatedArtists[i].name)
+          this.recurseSearch(relatedArtists[i], artistDest, newNode, accessToken, artistArray)
         }
       }
     } catch (err) { return }
@@ -109,6 +112,7 @@ class App extends Component {
           <h1>{this.state.path.item.name}</h1>
         </div>
         }
+        <SearchBar />
       </div>
     );
   }

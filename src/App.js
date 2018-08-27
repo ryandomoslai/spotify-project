@@ -41,18 +41,26 @@ class App extends Component {
   }
 
   async startSearch(query) {
-    await this.setState({ selectedQuery: query})
-    console.log(query)
+    await this.setState({ 
+      selectedQuery: query
+    })
+    console.log(query.id)
 
-    let artistRecurse = await fetch(  // Bowie
-      'https://api.spotify.com/v1/' + query.id, {
+    let fetchString = 'https://api.spotify.com/v1/artists/' +
+      query.id
+
+    let artistRecurse = await fetch(
+      fetchString, {
         headers: { 'Authorization': 'Bearer ' + this.accessToken }
       }).then(response => response.json())
 
-    let artistDest = "2x9SpqnPi8rlE9pjHBwmSC"  // Talking heds  
+    let artistDest = "2CvCyf1gEVhI0mX6aFXmVI"  // Paul Simon
     let path = new ArtistNode(null, artistRecurse)
     let artistArray = []
     let result = await this.recurseSearch(artistRecurse, artistDest, path, this.accessToken, artistArray)
+    await this.setState({
+      related: result
+    })
   }
 
   async recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray) {
@@ -93,9 +101,17 @@ class App extends Component {
     let artistProfileImage = ''
     if (!!this.state.selectedQuery) {
       artistProfileImage = this.state.selectedQuery.images[0].url
-      console.log(artistProfileImage)
     }
-
+    let relatedArray = []
+    if (!!this.state.path) {
+      let currentPath = this.state.path
+      let i = 0
+      while (currentPath != null) {
+        relatedArray[i] = currentPath.item
+        currentPath = currentPath.parent
+        i += 1
+      }
+    }
 
     return (
       <div className="App">
@@ -128,6 +144,17 @@ class App extends Component {
           <div>
           <img src={artistProfileImage} style={{ height: '100px'}}/>
             <h1>{this.state.selectedQuery.name}</h1>
+            <h1>{this.state.related}</h1>
+          </div>
+        }
+        {this.state.path &&
+          <div>
+            {relatedArray.map(related => 
+              <div>
+                <img src={related.images[0].url} style={{ height: '100px'}}/>
+                <br />
+              </div>
+            )}
           </div>
         }
 

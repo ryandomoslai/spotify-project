@@ -20,8 +20,7 @@ class App extends Component {
       user: {
         name: "",
         followers: 0,
-      },
-      selectedQuery: {}
+      }
     }
   }
 
@@ -43,9 +42,10 @@ class App extends Component {
 
   async startSearch(query) {
     await this.setState({ selectedQuery: query})
+    console.log(query)
 
     let artistRecurse = await fetch(  // Bowie
-      'https://api.spotify.com/v1/artists/0oSGxfWSnnOXhD2fKuz2Gy', {
+      'https://api.spotify.com/v1/' + query.id, {
         headers: { 'Authorization': 'Bearer ' + this.accessToken }
       }).then(response => response.json())
 
@@ -89,6 +89,14 @@ class App extends Component {
   }
   
   render() {
+
+    let artistProfileImage = ''
+    if (!!this.state.selectedQuery) {
+      artistProfileImage = this.state.selectedQuery.images[0].url
+      console.log(artistProfileImage)
+    }
+
+
     return (
       <div className="App">
         {this.state.user.name === "" ?
@@ -116,9 +124,13 @@ class App extends Component {
         </div>
         }
         <SearchBar selectArtist={this.startSearch} />
-        <div>
-          <h1>{this.state.selectedQuery.name}</h1>
-        </div>
+        {this.state.selectedQuery &&
+          <div>
+          <img src={artistProfileImage} style={{ height: '100px'}}/>
+            <h1>{this.state.selectedQuery.name}</h1>
+          </div>
+        }
+
       </div>
     );
   }

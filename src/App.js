@@ -10,6 +10,7 @@ class App extends Component {
     super()
 
     this.array = []
+    this.artistChains = []
     this.found = false
     this.string = ""
     this.accessToken = ""
@@ -44,26 +45,17 @@ class App extends Component {
     await this.setState({ 
       selectedQuery: query
     })
-    console.log(query.id)
-
-    let fetchString = 'https://api.spotify.com/v1/artists/' +
-      query.id
-
-    let artistRecurse = await fetch(
-      fetchString, {
-        headers: { 'Authorization': 'Bearer ' + this.accessToken }
-      }).then(response => response.json())
 
     let artistDest = "2CvCyf1gEVhI0mX6aFXmVI"  // Paul Simon
-    let path = new ArtistNode(null, artistRecurse)
-    let artistArray = []
-    let result = await this.recurseSearch(artistRecurse, artistDest, path, this.accessToken, artistArray)
-    await this.setState({
-      related: result
-    })
+    let path = new ArtistNode(null, query)
+
+    let depth = 0
+    await this.recurseSearch(query, depth, path, this.accessToken, [])
+    await this.recurseSearch(query, 1, path, this.accessToken, [])
+    // await this.recurseSearch(query, depth, path, this.accessToken, [])
   }
 
-  async recurseSearch(artistRecurse, artistDest, path, accessToken, artistArray) {
+  async recurseSearch(artistRecurse, depth, path, accessToken, artistArray) {
     let fetchString = 'https://api.spotify.com/v1/artists/' +
       artistRecurse.id +
       '/related-artists'
@@ -75,24 +67,37 @@ class App extends Component {
     let relatedArtists = data.artists
 
     try {
-      for (let i = 0; i < relatedArtists.length; i++) {
+      //for (let i = 0; i < relatedArtists.length; i++) {
         if (this.found) return;
-        if (artistArray.includes(relatedArtists[i].name)) {
-        } else if (relatedArtists[i].id === artistDest) {
+        // if (artistArray.includes(relatedArtists[0].name)) {
+        //   this.recurseSearch(relatedArtists[1], depth += 1, path, accessToken, artistArray) // Avoiding infinite loop of searching the same two artists
+        // } else 
+        if (depth == 2) {   // If maximum recurse depth reached  
           this.found = true
-          let newNode = new ArtistNode(path, relatedArtists[i])
+          let newNode = new ArtistNode(path, relatedArtists[0])
+          newNode.setFirstRelated(relatedArtists[1])  // This is totally temporary to see if it works
+          newNode.setSecondRelated(relatedArtists[2])  // This is totally temporary to see if it works
           path = newNode
-          console.log(path)
-          this.setState({
-            path: path
-          })
+
+          if (!!this.state.path) {
+            this.setState(prevState => ({
+              path: [...prevState.path, path]
+            }))
+          } else {
+            this.setState({
+              path: [path]
+            })
+          }
+
           return path
-        } else {
-          let newNode = new ArtistNode(path, relatedArtists[i])
-          artistArray.push(relatedArtists[i].name)
-          this.recurseSearch(relatedArtists[i], artistDest, newNode, accessToken, artistArray)
+        } else {   // Else go another level of depth in the artist chain
+          let newNode = new ArtistNode(path, relatedArtists[0])
+          newNode.setFirstRelated(relatedArtists[1])
+          newNode.setSecondRelated(relatedArtists[2])
+          artistArray.push(relatedArtists[0].name)
+          this.recurseSearch(relatedArtists[0], depth += 1, newNode, accessToken, artistArray)
         }
-      }
+     // }
     } catch (err) { return }
   }
   
@@ -104,13 +109,21 @@ class App extends Component {
     }
     let relatedArray = []
     if (!!this.state.path) {
-      let currentPath = this.state.path
+      let currentPath = this.state.path[0]
+
       let i = 0
       while (currentPath != null) {
-        relatedArray[i] = currentPath.item
-        currentPath = currentPath.parent
+        if (currentPath.firstRelated !== null) {
+          relatedArray[i] = currentPath.item
+          relatedArray[i].firstRelated = currentPath.firstRelated
+          relatedArray[i].secondRelated = currentPath.secondRelated
+          currentPath = currentPath.parent
+        }
+
         i += 1
       }
+      console.log(relatedArray)
+      relatedArray.splice(-1, 1)  // This is a temporary fix to see if it can display multiple artists
     }
 
     return (
@@ -136,7 +149,7 @@ class App extends Component {
         }
         {this.state.path && 
         <div>
-          <h1>{this.state.path.item.name}</h1>
+          <h1>{this.state.path[0].item.name}</h1>
         </div>
         }
         <SearchBar selectArtist={this.startSearch} />
@@ -151,7 +164,9 @@ class App extends Component {
           <div>
             {relatedArray.map(related => 
               <div>
-                <img src={related.images[0].url} style={{ height: '100px'}}/>
+                <img src={related.firstRelated.images[0].url} style={{ height: '100px' }} />
+                <img src={related.images[0].url} style={{ height: '100px' }} />
+                <img src={related.secondRelated.images[0].url} style={{ height: '100px' }} />
                 <br />
               </div>
             )}

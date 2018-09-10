@@ -12,6 +12,8 @@
     constructor(parent, item) {
         this.parent = parent
         this.item = item
+        this.firstRelated
+        this.secondRelated
     }
 
     /**
@@ -60,6 +62,14 @@
         } else{
             this.nodes[index] = newNode
         }
+    }
+
+    setFirstRelated(item) {
+        this.firstRelated = item
+    }
+
+    setSecondRelated(item) {
+        this.secondRelated = item
     }
 
     getChildren() {

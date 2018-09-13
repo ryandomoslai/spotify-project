@@ -46,12 +46,32 @@ class App extends Component {
       selectedQuery: query
     })
 
-    let artistDest = "2CvCyf1gEVhI0mX6aFXmVI"  // Paul Simon
+
+
+    let fetchString = 'https://api.spotify.com/v1/artists/' +
+      query.id +
+      '/related-artists'
+    const response = await fetch(fetchString, {
+      headers: { 'Authorization': 'Bearer ' + this.accessToken }
+    })
+    const data = await response.json()
+
+    let relatedArtists = data.artists
+
     let path = new ArtistNode(null, query)
 
-    let depth = 0
-    await this.recurseSearch(query, depth, path, this.accessToken, [])
-    await this.recurseSearch(query, 1, path, this.accessToken, [])
+    for (let i = 0; i < 5; i ++) {
+      let newNode = new ArtistNode(path, relatedArtists[i])
+      path = newNode
+    }
+    this.setState({
+      path: path
+    })
+    
+    return path
+    // let depth = 0
+    // await this.recurseSearch(query, depth, path, this.accessToken, [])
+    // await this.recurseSearch(query, 1, path, this.accessToken, [])
     // await this.recurseSearch(query, depth, path, this.accessToken, [])
   }
 
@@ -109,20 +129,21 @@ class App extends Component {
     }
     let relatedArray = []
     if (!!this.state.path) {
-      let currentPath = this.state.path[0]
+      let currentPath = this.state.path
+      console.log(currentPath)
 
       let i = 0
       while (currentPath != null) {
-        if (currentPath.firstRelated !== null) {
+        console.log(currentPath.item.name)
+        // if (currentPath.firstRelated !== null) {
           relatedArray[i] = currentPath.item
-          relatedArray[i].firstRelated = currentPath.firstRelated
-          relatedArray[i].secondRelated = currentPath.secondRelated
+          // relatedArray[i].firstRelated = currentPath.firstRelated
+          // relatedArray[i].secondRelated = currentPath.secondRelated
           currentPath = currentPath.parent
-        }
-
+        //}
         i += 1
       }
-      console.log(relatedArray)
+      //.log(relatedArray)
       relatedArray.splice(-1, 1)  // This is a temporary fix to see if it can display multiple artists
     }
 
@@ -149,7 +170,7 @@ class App extends Component {
         }
         {this.state.path && 
         <div>
-          <h1>{this.state.path[0].item.name}</h1>
+          <h1>{this.state.path.item.name}</h1>
         </div>
         }
         <SearchBar selectArtist={this.startSearch} />
@@ -164,9 +185,9 @@ class App extends Component {
           <div>
             {relatedArray.map(related => 
               <div>
-                <img src={related.firstRelated.images[0].url} style={{ height: '100px' }} />
+                {/* <img src={related.firstRelated.images[0].url} style={{ height: '100px' }} /> */}
                 <img src={related.images[0].url} style={{ height: '100px' }} />
-                <img src={related.secondRelated.images[0].url} style={{ height: '100px' }} />
+                {/* <img src={related.secondRelated.images[0].url} style={{ height: '100px' }} /> */}
                 <br />
               </div>
             )}

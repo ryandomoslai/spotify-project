@@ -184,11 +184,10 @@ class App extends Component {
         {this.state.path &&
           <div>
             {relatedArray.map(related => 
-              <div>
+              <div style={{display: 'inline'}}>
                 {/* <img src={related.firstRelated.images[0].url} style={{ height: '100px' }} /> */}
                 <img src={related.images[0].url} style={{ height: '100px' }} />
                 {/* <img src={related.secondRelated.images[0].url} style={{ height: '100px' }} /> */}
-                <br />
               </div>
             )}
           </div>

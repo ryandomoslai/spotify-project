@@ -143,7 +143,7 @@ class App extends Component {
       }
 
       let coolerPath = this.state.path
-      console.log(newPathArray)
+
       for (let i = 0; i < newPathArray.length; i++) {
         for (let k = 0; k < newPathArray[i].length; k++) {
           coolerPath = new ArtistNode(coolerPath, newPathArray[i][k])
@@ -165,12 +165,12 @@ class App extends Component {
     for (let i = 0; i < this.selectedArtists.length; i++) {
       if (this.selectedArtists[i] == artist) {
         this.selectedArtists.splice(i, 1)
-        console.log(this.selectedArtists)
+
         return
       }
     }
     this.selectedArtists.push(artist)
-    console.log(this.selectedArtists)
+
   }
 
   async upload() {
@@ -182,13 +182,30 @@ class App extends Component {
         headers: { 'Authorization': 'Bearer ' + this.accessToken }
       })
       const data = await response.json()
-      console.log(data)
+
       let track = data.tracks[0]
       this.selectedSongs.push(track)
     }
     this.setState({
       sending: true
     })
+  }
+
+  async confirm() {
+    console.log(this.state.user.name)
+    let fetchString = 'https://api.spotify.com/v1/users/' +
+      this.state.user.name +
+      '/playlists'
+    const response = await fetch(fetchString, {
+      method: 'POST',
+      headers: { 
+        'Authorization': 'Bearer ' + this.accessToken,
+        'Content-Type': 'application/json', 
+      },
+      body: JSON.stringify({ name: "test"})
+    })
+    const data = await response.json()
+    console.log(data)
   }
   
   render() {
@@ -285,7 +302,6 @@ class App extends Component {
             {relatedArray.map(related =>
               <div style={{ display: 'inline' }}>
               <ArtistImage artist={related} changeStatus={this.changeStatus} onclick={() => {
-                  console.log('test')
                   }}/>
               </div>
             )}
@@ -305,6 +321,9 @@ class App extends Component {
             {this.selectedSongs.map(track =>
               <h4>{track.name}</h4>
             )}
+          <button onClick={() => {
+            this.confirm()
+          }}>Confirm</button>
           </div>
         }
       </div>

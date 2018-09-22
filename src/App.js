@@ -3,6 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import ArtistNode from './artistStructure/artistNode';
 import SearchBar from './SearchBar';
+import ArtistImage from './ArtistImage';
 
 class App extends Component {
 
@@ -16,6 +17,7 @@ class App extends Component {
     this.accessToken = ""
 
     this.startSearch = this.startSearch.bind(this)
+    this.selectFavorite = this.selectFavorite.bind(this)
 
     this.state = {
       user: {
@@ -39,6 +41,9 @@ class App extends Component {
           followers: data.followers.total
         }
       }))
+    if (!!this.state.path) {
+      console.log('yippee')
+    }
   }
 
   async startSearch(query) {
@@ -98,16 +103,17 @@ class App extends Component {
           newNode.setFirstRelated(relatedArtists[1])  // This is totally temporary to see if it works
           newNode.setSecondRelated(relatedArtists[2])  // This is totally temporary to see if it works
           path = newNode
+          console.log(path)
 
-          if (!!this.state.path) {
-            this.setState(prevState => ({
-              path: [...prevState.path, path]
-            }))
-          } else {
-            this.setState({
-              path: [path]
-            })
-          }
+          // if (!!this.state.path) {
+          //   this.setState(prevState => ({
+          //     path: [...prevState.path, path]
+          //   }))
+          // } else {
+          //   this.setState({
+          //     path: [path]
+          //   })
+          // }
 
           return path
         } else {   // Else go another level of depth in the artist chain
@@ -120,6 +126,12 @@ class App extends Component {
      // }
     } catch (err) { return }
   }
+
+  selectFavorite() {
+    let path = this.state.path
+    console.log(path)
+    // TODO: MAKE IT SO THAT WHEN CLICKED, A STREAM OF THE "SELECTED" ARTIST'S RELATED IS FOUND AND DISPLAYED
+  }
   
   render() {
 
@@ -128,24 +140,38 @@ class App extends Component {
       artistProfileImage = this.state.selectedQuery.images[0].url
     }
     let relatedArray = []
+
     if (!!this.state.path) {
       let currentPath = this.state.path
-      console.log(currentPath)
+      //console.log(currentPath)
 
       let i = 0
       while (currentPath != null) {
-        console.log(currentPath.item.name)
-        // if (currentPath.firstRelated !== null) {
-          relatedArray[i] = currentPath.item
-          // relatedArray[i].firstRelated = currentPath.firstRelated
-          // relatedArray[i].secondRelated = currentPath.secondRelated
-          currentPath = currentPath.parent
-        //}
+        //console.log(currentPath.item.name)
+        relatedArray[i] = currentPath.item
+        currentPath = currentPath.parent
         i += 1
       }
       //.log(relatedArray)
       relatedArray.splice(-1, 1)  // This is a temporary fix to see if it can display multiple artists
     }
+
+    
+    // let favoriteArray = []
+
+    // if (!!this.state.favoriteSelected) {
+    //   let path = new ArtistNode(null, relatedArray[0])
+    //   let favoritePath = this.recurseSearch(relatedArray[0], 2, path, this.accessToken, [])
+    //   console.log(favoritePath)
+
+    //   let i = 0
+    //   while (favoritePath != null) {
+    //     favoriteArray[i] = favoritePath.item
+    //     favoritePath = favoritePath.parent
+    //     i += 1
+    //   }
+
+    // }
 
     return (
       <div className="App">
@@ -185,13 +211,26 @@ class App extends Component {
           <div>
             {relatedArray.map(related => 
               <div style={{display: 'inline'}}>
-                {/* <img src={related.firstRelated.images[0].url} style={{ height: '100px' }} /> */}
-                <img src={related.images[0].url} style={{ height: '100px' }} />
-                {/* <img src={related.secondRelated.images[0].url} style={{ height: '100px' }} /> */}
+                <ArtistImage artist = {related} />
+                {/* <img src={related.images[0].url} style={{ height: '100px' }} onClick={this.selectFavorite} /> */}
+              </div>
+            )}
+            <div>
+              <h1>Select your favorite of these artists:</h1>
+            </div>
+          </div>
+        }
+
+        {/* {this.state.favoriteSelected &&
+          <div>
+            {favoriteArray.map(favorite =>
+              <div>
+                <img src={favorite.images[0].url} style={{ height: '100px' }} />
               </div>
             )}
           </div>
-        }
+        } */}
+
 
       </div>
     );

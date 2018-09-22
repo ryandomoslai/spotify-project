@@ -15,9 +15,11 @@ class App extends Component {
     this.found = false
     this.string = ""
     this.accessToken = ""
+    this.relatedArray = []
 
     this.startSearch = this.startSearch.bind(this)
     this.selectFavorite = this.selectFavorite.bind(this)
+    this.changeStatus = this.changeStatus.bind(this)
 
     this.state = {
       user: {
@@ -158,6 +160,12 @@ class App extends Component {
     }
   }
 
+  changeStatus(artistName) {
+    for (let i = 0; i < this.relatedArray.length; i++) {
+      console.log(this.relatedArray[i])
+    }
+  }
+
   upload(array) {
     console.log(array)
   }
@@ -168,7 +176,7 @@ class App extends Component {
     if (!!this.state.selectedQuery) {
       artistProfileImage = this.state.selectedQuery.images[0].url
     }
-    let relatedArray = []
+    this.relatedArray = []
 
     if (!!this.state.path) {
       let currentPath = this.state.path
@@ -177,12 +185,12 @@ class App extends Component {
       let i = 0
       while (currentPath != null) {
         //console.log(currentPath.item.name)
-        relatedArray[i] = currentPath.item
+        this.relatedArray[i] = currentPath.item
         currentPath = currentPath.parent
         i += 1
       }
       //.log(relatedArray)
-      relatedArray.splice(-1, 1)  // This is a temporary fix to see if it can display multiple artists
+      this.relatedArray.splice(-1, 1)  // This is a temporary fix to see if it can display multiple artists
     }
 
     
@@ -241,11 +249,11 @@ class App extends Component {
             <div>
               <h1>Select your favorite of these artists:</h1>
             </div>
-            {relatedArray.map(related => 
+            {this.relatedArray.map(related => 
               <div style={{display: 'inline'}}>
 
               <img src={related.images[0].url} style={{ height: '100px', width: '100px'}} onClick={() => {
-                this.handleClick(related.name, relatedArray)
+                this.handleClick(related.name, this.relatedArray)
                 }}/> 
               </div>
             )}
@@ -254,13 +262,15 @@ class App extends Component {
         }
         {this.state.path && !!this.state.foundArtists && 
           <div style={{ width: '500px', 'margin': '0 auto' }}>
-            {relatedArray.map(related =>
+            {this.relatedArray.map(related =>
               <div style={{ display: 'inline' }}>
-                <ArtistImage artist={related} />
+              <ArtistImage artist={related} changeStatus={this.changeStatus} onclick={() => {
+                  console.log('test')
+                  }}/>
               </div>
             )}
             <button onClick={() => {
-              this.upload(relatedArray)
+              this.upload(this.relatedArray)
             }}>Upload</button>
             <br></br>
  

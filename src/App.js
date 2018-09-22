@@ -282,7 +282,9 @@ class App extends Component {
               <header className="App-header">
                 <h1 className="App-title">Click sign in to login!</h1>
                 <button onClick={() => {
-                  window.location = 'https://quick-playlists-backend.herokuapp.com/login'
+                  window.location = window.location.href.includes('localhost')
+                    ? 'http://localhost:8888/login'
+                    : 'https://quick-playlists-backend.herokuapp.com/login'
                 }}>Sign in
                 </button>
               </header>

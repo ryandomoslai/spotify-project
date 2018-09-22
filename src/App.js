@@ -16,6 +16,7 @@ class App extends Component {
     this.string = ""
     this.accessToken = ""
     this.selectedArtists = []
+    this.selectedSongs = []
 
     this.startSearch = this.startSearch.bind(this)
     this.selectFavorite = this.selectFavorite.bind(this)
@@ -172,8 +173,22 @@ class App extends Component {
     console.log(this.selectedArtists)
   }
 
-  upload(array) {
-    console.log(array)
+  async upload() {
+    for (let i = 0; i < this.selectedArtists.length; i++) {
+      let fetchString = 'https://api.spotify.com/v1/artists/' +
+        this.selectedArtists[i].id +
+        '/top-tracks?country=US'
+      const response = await fetch(fetchString, {
+        headers: { 'Authorization': 'Bearer ' + this.accessToken }
+      })
+      const data = await response.json()
+      console.log(data)
+      let track = data.tracks[0]
+      this.selectedSongs.push(track)
+    }
+    this.setState({
+      sending: true
+    })
   }
   
   render() {
@@ -218,39 +233,38 @@ class App extends Component {
 
     return (
       <div className="App">
-        {this.state.user.name === "" ?
+        {!this.state.sending &&
           <div>
-            <header className="App-header">
-              <img src={logo} className="App-logo" alt="logo" />
-              <h1 className="App-title">Click sign in to login!</h1>
-              <button onClick={() => {
-                window.location = 'http://localhost:8888/login'
-              }}>Sign in
-              </button>
-            </header>
+          {this.state.user.name === "" ?
+            <div>
+              <header className="App-header">
+                <h1 className="App-title">Click sign in to login!</h1>
+                <button onClick={() => {
+                  window.location = 'http://localhost:8888/login'
+                }}>Sign in
+                </button>
+              </header>
+            </div>
+              : <div>
+            <SearchBar selectArtist={this.startSearch} />
           </div>
-            : <div>
-          <header className="App-header">
-            <img src={logo} className="App-logo" alt="logo" />
-            <h1 className="App-title">{this.state.user.name} is logged in!</h1>
-            <h1>They have {this.state.user.followers} followers!</h1>
-          </header>
-        </div>
+          }
+          </div>
         }
-        {this.state.path && 
+
+        {this.state.path && !this.state.sending && 
         <div>
           <h1>{this.state.path.item.name}</h1>
         </div>
         }
-        <SearchBar selectArtist={this.startSearch} />
-        {this.state.selectedQuery &&
+        {this.state.selectedQuery && !this.state.sending &&
           <div>
           <img src={artistProfileImage} style={{ height: '100px'}}/>
             <h1>{this.state.selectedQuery.name}</h1>
             <h1>{this.state.related}</h1>
           </div>
         }
-        {this.state.path && !this.state.foundArtists &&
+        {this.state.path && !this.state.foundArtists && !this.state.sending &&
           <div style= {{width: '500px', 'margin': '0 auto'}}>
             <div>
               <h1>Select your favorite of these artists:</h1>
@@ -266,7 +280,7 @@ class App extends Component {
             <br></br>
           </div>
         }
-        {this.state.path && !!this.state.foundArtists && 
+        {this.state.path && !!this.state.foundArtists && !this.state.sending && 
           <div style={{ width: '500px', 'margin': '0 auto' }}>
             {relatedArray.map(related =>
               <div style={{ display: 'inline' }}>
@@ -276,24 +290,23 @@ class App extends Component {
               </div>
             )}
             <button onClick={() => {
-              this.upload(relatedArray)
+              this.upload()
             }}>Upload</button>
             <br></br>
  
           </div>
         }
 
-        {/* {this.state.favoriteSelected &&
+        {this.state.sending &&
           <div>
-            {favoriteArray.map(favorite =>
-              <div>
-                <img src={favorite.images[0].url} style={{ height: '100px' }} />
-              </div>
+            <h1>
+              Add this playlist to your account?
+            </h1>
+            {this.selectedSongs.map(track =>
+              <h4>{track.name}</h4>
             )}
           </div>
-        } */}
-
-
+        }
       </div>
     );
   }

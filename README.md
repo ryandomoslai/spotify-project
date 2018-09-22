@@ -1,1 +1,1 @@
-# [Click here to use the application!](https://quick-playlists.herokuapp.com/)
+# [Click here to try it out!](https://quick-playlists.herokuapp.com/)

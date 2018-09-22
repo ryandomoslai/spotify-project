@@ -80,7 +80,7 @@ class App extends Component {
     // await this.recurseSearch(query, depth, path, this.accessToken, [])
   }
 
-  async recurseSearch(artistRecurse, depth, path, accessToken, artistArray) {
+  async recurseSearch(artistRecurse, maxDepth, path, accessToken, artistArray) {
     let fetchString = 'https://api.spotify.com/v1/artists/' +
       artistRecurse.id +
       '/related-artists'
@@ -92,36 +92,16 @@ class App extends Component {
     let relatedArtists = data.artists
 
     try {
-      //for (let i = 0; i < relatedArtists.length; i++) {
         if (this.found) return;
-        // if (artistArray.includes(relatedArtists[0].name)) {
-        //   this.recurseSearch(relatedArtists[1], depth += 1, path, accessToken, artistArray) // Avoiding infinite loop of searching the same two artists
-        // } else 
-        if (depth == 2) {   // If maximum recurse depth reached  
+        if (maxDepth == 2) {   // If maximum recurse depth reached  
           this.found = true
           let newNode = new ArtistNode(path, relatedArtists[0])
-          newNode.setFirstRelated(relatedArtists[1])  // This is totally temporary to see if it works
-          newNode.setSecondRelated(relatedArtists[2])  // This is totally temporary to see if it works
           path = newNode
-          console.log(path)
-
-          // if (!!this.state.path) {
-          //   this.setState(prevState => ({
-          //     path: [...prevState.path, path]
-          //   }))
-          // } else {
-          //   this.setState({
-          //     path: [path]
-          //   })
-          // }
-
           return path
         } else {   // Else go another level of depth in the artist chain
           let newNode = new ArtistNode(path, relatedArtists[0])
-          newNode.setFirstRelated(relatedArtists[1])
-          newNode.setSecondRelated(relatedArtists[2])
           artistArray.push(relatedArtists[0].name)
-          this.recurseSearch(relatedArtists[0], depth += 1, newNode, accessToken, artistArray)
+          return await this.recurseSearch(relatedArtists[0], maxDepth += 1, newNode, accessToken, artistArray)
         }
      // }
     } catch (err) { return }
@@ -130,7 +110,29 @@ class App extends Component {
   selectFavorite() {
     let path = this.state.path
     console.log(path)
+    console.log('tet')
     // TODO: MAKE IT SO THAT WHEN CLICKED, A STREAM OF THE "SELECTED" ARTIST'S RELATED IS FOUND AND DISPLAYED
+  }
+
+  findChildArtists(preferred, artists) {
+    console.log("preferred")
+    console.log(preferred)
+    console.log("artists")
+    console.log(artists)
+  }
+
+  async handleClick(related) {
+    let path = new ArtistNode(null, related)
+    let newPath = await this.recurseSearch(related, 0, path, this.accessToken, [])
+    console.log(newPath)
+    let coolerPath = this.state.path
+    while (newPath.parent != null) {
+      coolerPath = new ArtistNode(coolerPath, newPath.item)
+      newPath = newPath.parent
+    }
+    this.setState({
+      path: coolerPath
+    })
   }
   
   render() {
@@ -208,14 +210,14 @@ class App extends Component {
           </div>
         }
         {this.state.path &&
-          <div>
+          <div style= {{width: '500px', 'margin': '0 auto'}}>
             {relatedArray.map(related => 
               <div style={{display: 'inline'}}>
-                <ArtistImage artist = {related} />
-                {/* <img src={related.images[0].url} style={{ height: '100px' }} onClick={this.selectFavorite} /> */}
+
+              <img src={related.images[0].url} style={{ height: '100px', width: '100px'}} onClick={() => this.handleClick(related, relatedArray)}/> 
               </div>
             )}
-            <div>
+          <div>
               <h1>Select your favorite of these artists:</h1>
             </div>
           </div>

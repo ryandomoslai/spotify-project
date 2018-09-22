@@ -117,21 +117,6 @@ class App extends Component {
 
   async handleClick(related, relatedArray) {
     let newPathArray = []
-    // for (let i = 0; i < relatedArray.length; i++) {
-    //   console.log(relatedArray[i])
-    //   let pathStart = new ArtistNode(null, relatedArray[i])
-    //   let path = await this.recurseSearch(relatedArray[i], 0, pathStart, this.accessToken, [])
-    //   newPathArray[i] = path
-    //   // if (relatedArray[i].name == related) {
-    //   //   let pathStart = new ArtistNode(null, relatedArray[i])
-    //   //   let path = await this.recurseSearch(relatedArray[i], 0, pathStart, this.accessToken, [])
-    //   //   newPathArray.push(path)
-    //   // } else {
-    //   //   let pathStart = new ArtistNode(null, relatedArray[i])
-    //   //   let path = await this.recurseSearch(relatedArray[i], 0, pathStart, this.accessToken, [])
-    //   //   newPathArray.push(path)
-    //   // }
-    // }
 
     for (let i = 0; i < relatedArray.length; i++) {
       let fetchString = 'https://api.spotify.com/v1/artists/' +
@@ -143,23 +128,14 @@ class App extends Component {
       const data = await response.json()
 
       let relatedArtists = data.artists
-      newPathArray[i] = relatedArtists.splice(0,3)
+      if (relatedArray[i].name == related) {
+        newPathArray[i] = relatedArtists.splice(0, 7)
+      } else {
+        newPathArray[i] = relatedArtists.splice(0, 2)
+      }
+      
     }
 
-    // let pathOne = await this.recurseSearch(relatedArray[0], 0, pathStart, this.accessToken, [])
-    // console.log(pathOne)
-
-    // pathStart = new ArtistNode(null, relatedArray[1])
-    // let pathTwo = await this.recurseSearch(relatedArray[1], 0, pathStart, this.accessToken, [])
-    // console.log(pathTwo)
-
-    // pathStart = new ArtistNode(null, relatedArray[2])
-    // let pathThree = await this.recurseSearch(relatedArray[2], 0, pathStart, this.accessToken, [])
-    // console.log(pathThree)
-
-    // this.setState({
-    //   newPathArray: newPathArray
-    // })
     let coolerPath = this.state.path
     console.log(newPathArray)
     for (let i = 0; i < newPathArray.length; i++) {

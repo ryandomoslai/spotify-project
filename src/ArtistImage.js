@@ -18,8 +18,8 @@ class ArtistImage extends Component {
             this.setState({
                 selected: true
             })
-            this.props.changeStatus()
         }
+        this.props.changeStatus(this.props.artist)
     }
 
     render() {

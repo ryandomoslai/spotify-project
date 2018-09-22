@@ -4,15 +4,40 @@ class ArtistImage extends Component {
 
     constructor(props) {
         super(props)
+        this.state = {
+            // Set your state here
+        }
     }
 
-    // selectFavorite = () => {
-    //     console.log(this.props.artist)
-    //     console.log('yes')
-    // }
+    handleClick() {
+        if (!!this.state.selected) {
+            this.setState({
+                selected: false
+            })
+        } else {
+            this.setState({
+                selected: true
+            })
+        }
+    }
 
     render() {
-        return <img src={this.props.artist.images[0].url} style={{ height: '100px' }}/>
+
+        let style = {
+            height: '100px',
+            width: '100px'
+        }
+        if (!!this.state.selected) {
+            style = {
+                height: '100px',
+                width: '100px',
+                filter: 'brightness(200%)'
+            }
+        }
+
+        return <img src={this.props.artist.images[0].url} style={style} onClick={() => {
+            this.handleClick()
+        }}/>
     }
 
 }

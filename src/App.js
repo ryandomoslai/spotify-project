@@ -116,41 +116,50 @@ class App extends Component {
   }
 
   async handleClick(related, relatedArray) {
-    let newPathArray = []
+    if (!!this.state.foundArtists) {
 
-    for (let i = 0; i < relatedArray.length; i++) {
-      let fetchString = 'https://api.spotify.com/v1/artists/' +
-        relatedArray[i].id +
-        '/related-artists'
-      const response = await fetch(fetchString, {
-        headers: { 'Authorization': 'Bearer ' + this.accessToken }
+    } else {
+      let newPathArray = []
+
+      for (let i = 0; i < relatedArray.length; i++) {
+        let fetchString = 'https://api.spotify.com/v1/artists/' +
+          relatedArray[i].id +
+          '/related-artists'
+        const response = await fetch(fetchString, {
+          headers: { 'Authorization': 'Bearer ' + this.accessToken }
+        })
+        const data = await response.json()
+
+        let relatedArtists = data.artists
+        if (relatedArray[i].name == related) {
+          newPathArray[i] = relatedArtists.splice(0, 7)
+        } else {
+          newPathArray[i] = relatedArtists.splice(0, 2)
+        }
+
+      }
+
+      let coolerPath = this.state.path
+      console.log(newPathArray)
+      for (let i = 0; i < newPathArray.length; i++) {
+        for (let k = 0; k < newPathArray[i].length; k++) {
+          coolerPath = new ArtistNode(coolerPath, newPathArray[i][k])
+        }
+        // while (newPathArray[i].parent != null) {
+        //   console.log(newPathArray[i])
+        //   coolerPath = new ArtistNode(coolerPath, newPathArray[i].item)
+        //   newPathArray[i] = newPathArray[i].parent
+        // }
+      }
+      this.setState({
+        path: coolerPath,
+        foundArtists: true
       })
-      const data = await response.json()
-
-      let relatedArtists = data.artists
-      if (relatedArray[i].name == related) {
-        newPathArray[i] = relatedArtists.splice(0, 7)
-      } else {
-        newPathArray[i] = relatedArtists.splice(0, 2)
-      }
-      
     }
+  }
 
-    let coolerPath = this.state.path
-    console.log(newPathArray)
-    for (let i = 0; i < newPathArray.length; i++) {
-      for (let k = 0; k < newPathArray[i].length; k++) {
-        coolerPath = new ArtistNode(coolerPath, newPathArray[i][k])
-      }
-      // while (newPathArray[i].parent != null) {
-      //   console.log(newPathArray[i])
-      //   coolerPath = new ArtistNode(coolerPath, newPathArray[i].item)
-      //   newPathArray[i] = newPathArray[i].parent
-      // }
-    }
-    this.setState({
-      path: coolerPath
-    })
+  upload(array) {
+    console.log(array)
   }
   
   render() {
@@ -227,17 +236,34 @@ class App extends Component {
             <h1>{this.state.related}</h1>
           </div>
         }
-        {this.state.path &&
+        {this.state.path && !this.state.foundArtists &&
           <div style= {{width: '500px', 'margin': '0 auto'}}>
+            <div>
+              <h1>Select your favorite of these artists:</h1>
+            </div>
             {relatedArray.map(related => 
               <div style={{display: 'inline'}}>
 
-              <img src={related.images[0].url} style={{ height: '100px', width: '100px'}} onClick={() => this.handleClick(related.name, relatedArray)}/> 
+              <img src={related.images[0].url} style={{ height: '100px', width: '100px'}} onClick={() => {
+                this.handleClick(related.name, relatedArray)
+                }}/> 
               </div>
             )}
-          <div>
-              <h1>Select your favorite of these artists:</h1>
-            </div>
+            <br></br>
+          </div>
+        }
+        {this.state.path && !!this.state.foundArtists && 
+          <div style={{ width: '500px', 'margin': '0 auto' }}>
+            {relatedArray.map(related =>
+              <div style={{ display: 'inline' }}>
+                <ArtistImage artist={related} />
+              </div>
+            )}
+            <button onClick={() => {
+              this.upload(relatedArray)
+            }}>Upload</button>
+            <br></br>
+ 
           </div>
         }
 

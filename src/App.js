@@ -109,26 +109,68 @@ class App extends Component {
 
   selectFavorite() {
     let path = this.state.path
-    console.log(path)
-    console.log('tet')
     // TODO: MAKE IT SO THAT WHEN CLICKED, A STREAM OF THE "SELECTED" ARTIST'S RELATED IS FOUND AND DISPLAYED
   }
 
   findChildArtists(preferred, artists) {
-    console.log("preferred")
-    console.log(preferred)
-    console.log("artists")
-    console.log(artists)
   }
 
-  async handleClick(related) {
-    let path = new ArtistNode(null, related)
-    let newPath = await this.recurseSearch(related, 0, path, this.accessToken, [])
-    console.log(newPath)
+  async handleClick(related, relatedArray) {
+    let newPathArray = []
+    // for (let i = 0; i < relatedArray.length; i++) {
+    //   console.log(relatedArray[i])
+    //   let pathStart = new ArtistNode(null, relatedArray[i])
+    //   let path = await this.recurseSearch(relatedArray[i], 0, pathStart, this.accessToken, [])
+    //   newPathArray[i] = path
+    //   // if (relatedArray[i].name == related) {
+    //   //   let pathStart = new ArtistNode(null, relatedArray[i])
+    //   //   let path = await this.recurseSearch(relatedArray[i], 0, pathStart, this.accessToken, [])
+    //   //   newPathArray.push(path)
+    //   // } else {
+    //   //   let pathStart = new ArtistNode(null, relatedArray[i])
+    //   //   let path = await this.recurseSearch(relatedArray[i], 0, pathStart, this.accessToken, [])
+    //   //   newPathArray.push(path)
+    //   // }
+    // }
+
+    for (let i = 0; i < relatedArray.length; i++) {
+      let fetchString = 'https://api.spotify.com/v1/artists/' +
+        relatedArray[i].id +
+        '/related-artists'
+      const response = await fetch(fetchString, {
+        headers: { 'Authorization': 'Bearer ' + this.accessToken }
+      })
+      const data = await response.json()
+
+      let relatedArtists = data.artists
+      newPathArray[i] = relatedArtists.splice(0,3)
+    }
+
+    // let pathOne = await this.recurseSearch(relatedArray[0], 0, pathStart, this.accessToken, [])
+    // console.log(pathOne)
+
+    // pathStart = new ArtistNode(null, relatedArray[1])
+    // let pathTwo = await this.recurseSearch(relatedArray[1], 0, pathStart, this.accessToken, [])
+    // console.log(pathTwo)
+
+    // pathStart = new ArtistNode(null, relatedArray[2])
+    // let pathThree = await this.recurseSearch(relatedArray[2], 0, pathStart, this.accessToken, [])
+    // console.log(pathThree)
+
+    // this.setState({
+    //   newPathArray: newPathArray
+    // })
     let coolerPath = this.state.path
-    while (newPath.parent != null) {
-      coolerPath = new ArtistNode(coolerPath, newPath.item)
-      newPath = newPath.parent
+    console.log(newPathArray)
+    for (let i = 0; i < newPathArray.length; i++) {
+      for (let k = 0; k < newPathArray[i].length; k++) {
+        coolerPath = new ArtistNode(coolerPath, newPathArray[i][k])
+      }
+      // while (newPathArray[i].parent != null) {
+      //   console.log(newPathArray[i])
+      //   coolerPath = new ArtistNode(coolerPath, newPathArray[i].item)
+      //   newPathArray[i] = newPathArray[i].parent
+      // }
     }
     this.setState({
       path: coolerPath
@@ -214,7 +256,7 @@ class App extends Component {
             {relatedArray.map(related => 
               <div style={{display: 'inline'}}>
 
-              <img src={related.images[0].url} style={{ height: '100px', width: '100px'}} onClick={() => this.handleClick(related, relatedArray)}/> 
+              <img src={related.images[0].url} style={{ height: '100px', width: '100px'}} onClick={() => this.handleClick(related.name, relatedArray)}/> 
               </div>
             )}
           <div>

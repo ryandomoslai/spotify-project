@@ -21,12 +21,14 @@ class App extends Component {
     this.startSearch = this.startSearch.bind(this)
     this.selectFavorite = this.selectFavorite.bind(this)
     this.changeStatus = this.changeStatus.bind(this)
+    this.handleChange = this.handleChange.bind(this);
 
     this.state = {
       user: {
         name: "",
         followers: 0,
-      }
+      },
+      playlistName: 'Enter the name of your playlist.'
     }
   }
 
@@ -192,20 +194,43 @@ class App extends Component {
   }
 
   async confirm() {
-    console.log(this.state.user.name)
     let fetchString = 'https://api.spotify.com/v1/users/' +
       this.state.user.name +
       '/playlists'
-    const response = await fetch(fetchString, {
+    let response = await fetch(fetchString, {
       method: 'POST',
       headers: { 
         'Authorization': 'Bearer ' + this.accessToken,
         'Content-Type': 'application/json', 
       },
-      body: JSON.stringify({ name: "test"})
+      body: JSON.stringify({ name: this.state.playlistName})
     })
-    const data = await response.json()
+    let data = await response.json()
     console.log(data)
+    
+    let playlistId = data.id
+    let songUris = []
+    for (let i = 0; i < this.selectedSongs.length; i++) {
+      songUris.push(this.selectedSongs[i].uri)
+    }
+    console.log(songUris)
+    fetchString = 'https://api.spotify.com/v1/playlists/' +
+      playlistId +
+      '/tracks'
+    response = await fetch(fetchString, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + this.accessToken,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ uris: songUris})
+    })
+    data = await response.json()
+    console.log(data)
+  }
+
+  handleChange(event) {
+    this.setState({ playlistName: event.target.value });
   }
   
   render() {
@@ -318,6 +343,7 @@ class App extends Component {
             <h1>
               Add this playlist to your account?
             </h1>
+            <input type="text" name="name" value={this.state.playlistName} onChange={this.handleChange}/>
             {this.selectedSongs.map(track =>
               <h4>{track.name}</h4>
             )}
